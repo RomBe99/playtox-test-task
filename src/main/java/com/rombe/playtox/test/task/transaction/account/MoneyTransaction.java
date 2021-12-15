@@ -25,30 +25,33 @@ public class MoneyTransaction extends AccountDatabaseTransaction {
     }
 
     private void prepareSender() {
-        var account = database.read(senderId);
+        databaseChanges.add(() -> {
+            var account = database.read(senderId);
 
-        if (account == null) {
-            throw new TransactionException(TransactionErrorCodes.ACCOUNT_NOT_FOUND);
-        }
+            if (account == null) {
+                throw new TransactionException(TransactionErrorCodes.ACCOUNT_NOT_FOUND);
+            }
 
-        var newBalance = account.getMoney() - amountMoneyToSend;
+            var newBalance = account.getMoney() - amountMoneyToSend;
 
-        if (newBalance < 0) {
-            throw new TransactionException(TransactionErrorCodes.NEGATIVE_BALANCE);
-        }
+            if (newBalance < 0) {
+                throw new TransactionException(TransactionErrorCodes.NEGATIVE_BALANCE);
+            }
 
-        databaseChanges.add(() -> database.update(senderId, new Account(senderId, newBalance)));
+            database.update(senderId, new Account(senderId, newBalance));
+        });
     }
 
     private void prepareRecipient() {
-        var account = database.read(recipientId);
+        databaseChanges.add(() -> {
+            var account = database.read(recipientId);
 
-        if (account == null) {
-            throw new TransactionException(TransactionErrorCodes.ACCOUNT_NOT_FOUND);
-        }
+            if (account == null) {
+                throw new TransactionException(TransactionErrorCodes.ACCOUNT_NOT_FOUND);
+            }
 
-        var newBalance = account.getMoney() + amountMoneyToSend;
-
-        databaseChanges.add(() -> database.update(recipientId, new Account(recipientId, newBalance)));
+            var newBalance = account.getMoney() + amountMoneyToSend;
+            database.update(recipientId, new Account(recipientId, newBalance));
+        });
     }
 }
