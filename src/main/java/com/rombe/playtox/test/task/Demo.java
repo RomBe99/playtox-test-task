@@ -4,6 +4,8 @@ import com.rombe.playtox.test.task.db.account.AccountDatabase;
 import com.rombe.playtox.test.task.entity.Account;
 import com.rombe.playtox.test.task.looper.MainLoop;
 import com.rombe.playtox.test.task.transaction.account.AccountTransactionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,15 +13,15 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Demo {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Demo.class);
 
     public static void main(String[] args) {
-        var database = new AccountDatabase();
 
+        var database = new AccountDatabase();
         final var accountsAmount = 4;
         final int transactionsAmount = 30;
         var transactionManager = new AccountTransactionManager(database, accountsAmount + transactionsAmount);
 
-        // Creating new users
         List<String> userIds = new ArrayList<>(accountsAmount);
 
         for (int i = 0; i < accountsAmount; i++) {
@@ -29,7 +31,6 @@ public class Demo {
             userIds.add(id);
         }
 
-        // Create tasks for threads
         final var threadsAmount = 4;
         List<Thread> threads = new ArrayList<>(threadsAmount);
 
@@ -47,12 +48,12 @@ public class Demo {
                     try {
                         Thread.sleep(ThreadLocalRandom.current().nextInt(1000, 2000));
                     } catch (InterruptedException e) {
+                        LOGGER.error("Something go wrong when thread = {} is sleep", Thread.currentThread().getName(), e);
                     }
                 }
             }));
         }
 
-        // Start demo
         new MainLoop(transactionManager, threads)
                 .startLoop();
     }

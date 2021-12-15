@@ -3,12 +3,16 @@ package com.rombe.playtox.test.task.transaction.account;
 import com.rombe.playtox.test.task.db.account.AccountDatabase;
 import com.rombe.playtox.test.task.entity.Account;
 import com.rombe.playtox.test.task.transaction.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class AccountTransactionManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccountTransactionManager.class);
+
     private final AtomicInteger transactionsCount;
     private final BlockingQueue<Transaction> transactions = new LinkedBlockingQueue<>();
     private final AccountDatabase accountDatabase;
